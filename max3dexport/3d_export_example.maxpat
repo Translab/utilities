@@ -7,7 +7,7 @@
 			"revision" : 5
 		}
 ,
-		"rect" : [ 673.0, 155.0, 1564.0, 925.0 ],
+		"rect" : [ 356.0, 155.0, 1564.0, 925.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -57,7 +57,7 @@
 							"revision" : 5
 						}
 ,
-						"rect" : [ 0.0, 26.0, 1564.0, 899.0 ],
+						"rect" : [ 356.0, 181.0, 1564.0, 899.0 ],
 						"bglocked" : 0,
 						"openinpresentation" : 0,
 						"default_fontsize" : 12.0,
@@ -171,7 +171,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 705.5, 436.0, 279.0, 172.0 ],
-									"text" : "After exportingI suggest using Meshlab to clean your object after exporting. Sometimes very long edges are produced between ends of objects which are undesirable.\n\nFilters > Selection > Select faces with edges longer than .... \n\nFilters > Selection > Delete selected faces and verticies \n \nhttp://meshlab.sourceforge.net/"
+									"text" : "After exporting I suggest using Meshlab to clean your object. Sometimes very long edges are produced between ends of objects which are undesirable.\n\nFilters > Selection > Select faces with edges longer than .... \n\nFilters > Selection > Delete selected faces and verticies \n \nhttp://meshlab.sourceforge.net/"
 								}
 
 							}
@@ -11497,7 +11497,7 @@
 																	"fontname" : "Arial",
 																	"fontsize" : 11.595187,
 																	"id" : "obj-4",
-																	"items" : [ "Apple Internal Keyboard / Trackpad", ",", "Apple Mikey HID Driver", ",", "Apple Internal Keyboard / Trackpad 2", ",", "Apple Internal Keyboard / Trackpad 3", ",", "Apple Internal Keyboard / Trackpad 4" ],
+																	"items" : [ "Apple Internal Keyboard / Trackpad", ",", "Apple Internal Keyboard / Trackpad 2", ",", "Apple Internal Keyboard / Trackpad 3", ",", "Apple Internal Keyboard / Trackpad 4", ",", "Apple Mikey HID Driver" ],
 																	"labelclick" : 1,
 																	"maxclass" : "umenu",
 																	"numinlets" : 1,

@@ -7,6 +7,12 @@
  * Added more primitive options for generative geometry by Sterling Crispin 2013
  * tri_fan2 , quad_grid2 , tri_strip2
  * Version 0.92 (v3)
+ *
+ * After exporting I suggest using Meshlab to clean your object after exporting. 
+ * Sometimes very long edges are produced between ends of objects which are undesirable.
+ * Filters > Selection > Select faces with edges longer than .... 
+ * Filters > Selection > Delete selected faces and verticies 
+ * http://meshlab.sourceforge.net/
  */
 
 autowatch = 1;
