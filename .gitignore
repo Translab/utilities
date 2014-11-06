@@ -9,4 +9,6 @@ TrackerXYZQuats1.txt
 
 *.obj
 
+robotarm/doc
+
 max3dexport/3d_export_example copy.maxpat
