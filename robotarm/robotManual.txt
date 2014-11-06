@@ -1,0 +1,169 @@
+ST Robot OSC Interface Manual
+Written by Danny Bazo in 2014
+
+
+Contents:
+
+POWERING ON THE ARM/RPI
+COMMANDING THE ARM
+POWERING DOWN THE ARM/PI
+Command Format
+Command Responses
+General/Configuration Commands
+Movement Commands
+Query Commands
+
+
+POWERING ON THE ARM/RPI:
+1. turn on the power switch on the back of the robot control box.
+2. plug in RPi wall adapter.
+3. wait approx 20 seconds, from a terminal type "ssh pi@192.168.0.160" (this is the pi's static IP address on the transLab network). password is "raspberry".
+4. once logged in, type "cd code/roboforthOSC/"
+5. start the python OSC-serial interpreter by typing "python roboforthOSC.py". wait for startup and the words "roboforthOSC started..."
+
+The RPi is now listening. The address is 192.168.0.160, talk to port 9001 and listen to port 9000. Send OSC commands as described in the last email.
+
+
+COMMANDING THE ARM:
+1. send the /client command from the computer from which you will control the robot.
+2. send the /initialize command and wait for the response, then manually position the arm in the home position.
+3. send the /calibrate command and wait for it to complete
+4. start with the /home command to move the robot to the starting position
+5. use the arm by sending the /move commands and checking position with the /where command. note the details in the last email about DONE vs. BAD_COMMAND, etc.
+
+
+POWERING DOWN THE ARM/PI:
+1. send the /home command to the arm
+2. when it reaches home, send the /off command to power down the motors
+3. when the /off command is DONE, switch the robot power off using the switch on the back of the control box.
+4. in the ssh window connected to the RPi, type control-c to quit the python OSC-serial interpreter. wait for it to quit.
+5. in the ssh window connected to the RPi, type "sudo shutdown -h now" to shutdown the pi.
+6. wait approximately 45 seconds for the RPi to power down. open the drawer and look at the RPi, there should only be a single solid red light on.
+7. unplug the RPi wall adapter.
+
+EMERGENCY STOP: PRESS THE RED STOP BUTTON ON THE FRONT OF THE CONTROL BOX AT ANY TIME
+After pressing the emergency stop button, you must restart the system by typing /initialize and continuing through the power on instructions given above.
+
+
+Command Format:
+
+All commands are OSC messages of the form:
+/<command> <value1> <value2> ...
+Where the number of values depends on the command.
+
+
+Command Responses:
+
+All commands received via OSC will generate two OSC responses. The first is an
+immediate response, the second happens after the command is actually executed.
+If the command is not properly formatted, the first response will look like:
+/<command> <values> BAD_COMMAND
+
+If the command is properly formatted, but the robot is BUSY, the first response
+will look like:
+/<command> <values> BUSY
+
+If the command is properly formatted, and the robot is not BUSY, the first response
+will look like:
+/<command> <values> GOT
+If this response is triggered, the robot will enter a BUSY state until the command
+is DONE being executed.
+
+After a GOT message, The robot will then perform the command. When the robot has
+completed the command, the second response will be sent, of the form:
+/<command> <values> DONE
+This indicates that the command was completed and that the robot is now not BUSY.
+
+Several possibilities exist for the command to FAIL (out of reach, causes self-
+collision, etc.), in which case the second response will not be DONE, but will look like:
+/<command> <values> ABORTED
+
+
+General/Configuration Commands:
+
+/client
+Sets the sender of the /client message as the robot controller. This should be the
+first message sent to the robot via OSC after power-on, and it should not be sent
+again by the same or any other computer without restarting the robot RPi or be
+otherwise killing/restarting the processes associated with this program.
+
+/initialize
+Initializes the Roboforth language and de-energizes in preparation for calibration.
+After sending this command and receiving the /initialize DONE message in response,
+manually put the robot into home position and then send the /calibrate message
+(described below).
+
+/calibrate
+Calibrates the robot joint sensors. Must be called at startup after calling /initialize
+and moving the robot to the home position. If the calibrate succeeds you will get the
+response /calibrate DONE, if it fails you will get a </command> ERROR indicating the
+specific problem, and you must try to manually put the robot in the home position once
+again. Repeated ERRORs indicate a serious problem.
+
+/toollength <value>
+Value is the length of the end-effector in mm given as a floating point number in the
+range [0., 1000.]. This is the distance from the hand-wrist joint at which xyz commands
+such as /move and /where (while in cartesian mode) will be calculated.
+Out-of-range values will result in a message that looks like:
+/toollength <value> BAD_COMMAND
+
+/cartesian
+Puts the robot into cartesian coordinates mode. /move commands must be appropriately
+formatted for this mode, and /where will be in joint coordinates (see those commands).
+
+/joint
+Puts the robot into individual joint address mode. /move commands must be appropriately
+formatted for this mode, and /where will be in xyz coordinates (see those commands).
+
+/off
+This command de-energizes the robot's motors in preparation for switching the robot off.
+It should be the last thing you call before turning the robot off.
+
+
+Movement Commands:
+
+/speed <value>
+Value is a floating point number in the range (0., 1.], where 1. is the fastest movement
+speed and numbers close to 0. being slowest. Zero itself is not a valid input. Very low
+speeds may result in movements that take a very long time and which cannot be cancelled
+without hitting the STOP button. Bad inputs cause an error message that looks like:
+/speed <value> BAD_COMMAND
+The robot is equally dangerous whether moving fast or slow!
+
+/move <joint> <angle>
+This command is only valid while in /joint mode. <joint> must be one of: {waist, shoulder,
+elbow, wrist, hand}. This command drives individual joints of the robot. <angle> is in
+radians in the range [-PI, PI]. Inputs outside [-PI, PI] result in a response that looks
+like:
+/move <joint> <angle> BAD_COMMAND
+Note that you can easily crash the robot into itself or other objects! There is NO
+COLLISION DETECTION, you must check for crashes yourself!
+
+/move xyz <x> <y> <z>
+This command is only valid while in /cartesian mode. This command positions the tip of
+the end-effector at the coordinates (x, y, z), where all three values are in mm. From the
+point of view of the robot, the x-axis is left-right, the y-axis is front-back, and the
+z-axis is up-down. If the commanded coordinates are not reachable, or will cause self-
+collision, then instead of the DONE response, you will get a response like:
+/xyz <x> <y> <z> ABORTED
+Note that this mode does check for self-collision for you!
+
+/home
+This command moves the robot to the home position (upright, same as the calibration position).
+
+
+Query Commands:
+
+/where
+This returns an OSC message containing the current position of the robot. If the robot is in
+/joint mode, the message will contain five values in radians, one each for {waist, shoulder,
+elbow, wrist, hand}, in that order. If the robot is in /cartesian mode, the message will contain
+three values, one each for x, y, and z, in that order.
+
+--—
+
+References
+
+http://www.strobotics.com/manuals/R12man.pdf
+http://www.strobotics.com/manuals/manual15.htm
+
